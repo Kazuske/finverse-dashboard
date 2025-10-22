@@ -8,42 +8,67 @@
 
 /* Header Styles */
 .header {
-  background: linear-gradient(135deg, #4ade80 0%, #3b82f6 100%);
-  padding: 2rem;
+  /* 🔹 adjusted angle and padding for better logo area */
+  background: linear-gradient(90deg, #3b82f6 0%, #4ade80 100%);
+  padding: 1rem 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
+/* 🔹 added more gap for logo breathing space */
 .header-left {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.4rem;
 }
 
-.trophy-icon {
-  font-size: 3rem;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+/* 🔹 larger, brighter, more visible logo */
+.finverse-logo-small {
+  height: 90px; /* increased from 40px */
+  width: auto;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4));
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+
+.finverse-logo-small:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
 }
 
 .title-section {
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
+/* 🔹 slightly smaller title to balance larger logo */
 .main-title {
-  font-size: 3rem;
+  font-size: 2.3rem;
   font-weight: bold;
   margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  color: #ffffff;
+}
+
+/* Monopoly board label */
+.monopoly-board {
+  display: inline-block;
+  background: linear-gradient(to bottom, #e11d48, #be123c);
+  color: #ffffff;
+  padding: 0.25rem 0.75rem;
+  margin-left: 0.5rem;
+  border: 2px solid #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 2px 0 #7f1d1d, inset 0 -2px 0 rgba(255, 255, 255, 0.45);
+  letter-spacing: 1px;
 }
 
 .subtitle {
-  font-size: 1.2rem;
+  font-size: 1rem;
   margin: 0;
   opacity: 0.9;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
 .header-right {
@@ -72,7 +97,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.15);
   padding: 0.35rem 0.6rem;
   border-radius: 8px;
   width: fit-content;
@@ -89,26 +114,26 @@
 }
 
 .timer-reset-btn {
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-  padding: 0.15rem 0.45rem;
+  background: #ffffff;
+  border: none;
+  color: #1a1a1a;
+  padding: 0.15rem 0.6rem;
   border-radius: 6px;
   font-size: 0.75rem;
   cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .timer-reset-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #e5e5e5;
 }
 
 /* Main Content */
 .main-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  padding: 2rem;
-  min-height: calc(100vh - 200px);
+  display: flex;
+  padding: 1rem 2rem;
+  min-height: calc(100vh - 120px);
 }
 
 /* Section Headers */
@@ -134,22 +159,33 @@
 .leaderboard-section {
   background-color: #2a2a2a;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
 }
 
 .leaderboard {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 2rem;
+}
+
+.leaderboard-column {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .team-card {
   background-color: #3a3a3a;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1rem;
   transition: all 0.3s ease;
   border: 2px solid transparent;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .team-card:hover {
@@ -158,9 +194,9 @@
 }
 
 .team-card.first-place {
-  background-color: #fbbf24;
-  color: #1a1a1a;
-  border-color: #f59e0b;
+  background-color: #3a3a3a;
+  color: #ffffff;
+  border-color: #4ade80;
 }
 
 .team-header {
@@ -171,7 +207,7 @@
 }
 
 .rank-icon {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
 
 .team-name {
@@ -189,8 +225,25 @@
   margin-bottom: 0.25rem;
 }
 
+/* Inline property tags shown under properties count */
+.property-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.35rem;
+}
+
+.property-tag {
+  background-color: #4a4a4a;
+  color: #ffffff;
+  padding: 0.2rem 0.45rem;
+  border-radius: 10px;
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
 .total-value {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: bold;
   color: #4ade80;
   margin-bottom: 0.25rem;
@@ -216,115 +269,12 @@
   transition: width 0.3s ease;
 }
 
-/* Team Statistics Styles */
-.stats-section {
-  background-color: #2a2a2a;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
-
-.stat-card {
-  background-color: #3a3a3a;
-  border-radius: 8px;
-  padding: 1rem;
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
-
-.stat-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.stat-team-name {
-  font-size: 1rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.position {
-  font-size: 0.8rem;
-  opacity: 0.7;
-}
-
-.stat-details {
-  margin-bottom: 0.75rem;
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.25rem;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.stat-value {
-  font-weight: bold;
-}
-
-.stat-value.cash {
-  color: #4ade80;
-}
-
-.stat-value.net-worth {
-  color: #fbbf24;
-}
-
-.recent-properties {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 0.75rem;
-}
-
-.properties-label {
-  font-size: 0.8rem;
-  opacity: 0.7;
-  margin-bottom: 0.5rem;
-}
-
-.property-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-}
-
-.property-tag {
-  background-color: #4a4a4a;
-  color: #ffffff;
-  padding: 0.25rem 0.5rem;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 500;
-}
-
-/* (removed caps-lock overlay) */
-
-/* bottom-corner styles removed */
-
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .main-content {
-    grid-template-columns: 1fr;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(3, 1fr);
+  .leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
   }
 }
 
@@ -334,16 +284,30 @@
     gap: 1rem;
     text-align: center;
   }
-  
+
+  .finverse-logo-small {
+    height: 90px; /* slightly larger for visibility even on small screens */
+  }
+
   .main-title {
     font-size: 2rem;
   }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
+
   .main-content {
     padding: 1rem;
   }
+
+  .team-card {
+    padding: 0.6rem;
+    min-height: 70px;
+  }
+
+  .team-name {
+    font-size: 1rem;
+  }
+
+  .total-value {
+    font-size: 1.2rem;
+  }
+  
 }

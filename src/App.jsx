@@ -68,9 +68,9 @@ function App() {
       if (error) throw error;
       const normalized = (data ?? []).map((row, idx) => normalizeTeam(row, idx));
 
-      // Attempt to enrich with recent properties for top teams if team ids exist
+      // Attempt to enrich with recent properties for all teams if team ids exist
       const teamsWithProps = await Promise.all(
-        normalized.slice(0, 6).map(async (t) => {
+        normalized.map(async (t) => {
           if (!t.teamId) return t;
           try {
             const { data: summary, error: summaryError } = await getTeamSummary(t.teamId);
@@ -85,8 +85,7 @@ function App() {
         })
       );
 
-      // Merge back with any remaining teams not enriched
-      const merged = teamsWithProps.concat(normalized.slice(6));
+      const merged = teamsWithProps;
       setTeams(merged);
     } catch (err) {
       setErrorText(typeof err?.message === 'string' ? err.message : 'Failed to load data');
@@ -137,9 +136,9 @@ function App() {
       {/* Header */}
       <header className="header">
         <div className="header-left">
-          <div className="trophy-icon">🏆</div>
+          <img src="/finverse-logo1.png" alt="Finverse Logo" className="finverse-logo-small" />
           <div className="title-section">
-            <h1 className="main-title">Finverse Monopoly</h1>
+            <h1 className="main-title">Finverse <span className="monopoly-board">MONOPOLY</span></h1>
             <p className="subtitle">Live Tournament Dashboard</p>
           </div>
         </div>
@@ -171,67 +170,59 @@ function App() {
             {errorText && (
               <div className="team-card" style={{ textAlign: 'center', color: '#fca5a5' }}>{errorText}</div>
             )}
-            {teams.slice(0, 5).map((team) => (
-              <div key={team.name} className={`team-card ${team.rank === 1 ? 'first-place' : ''}`}>
-                <div className="team-header">
-                  <span className="rank-icon">{getRankIcon(team.rank)}</span>
-                  <span className="team-name">{team.name}</span>
-                </div>
+            <div className="leaderboard-column">
+              {teams.slice(0, 4).map((team) => (
+                <div key={team.name} className={`team-card ${team.rank === 1 ? 'first-place' : ''}`}>
+                  <div className="team-header">
+                    <span className="rank-icon">{getRankIcon(team.rank)}</span>
+                    <span className="team-name">{team.name}</span>
+                  </div>
                 <div className="team-stats">
                   <div className="properties-count">{team.properties} properties</div>
-                  <div className="total-value">${team.totalValue.toLocaleString()}</div>
-                  <div className="cash">Cash: ${team.cash.toLocaleString()}</div>
+                  {!!(team.recentProperties && team.recentProperties.length) && (
+                    <div className="property-tags">
+                      {team.recentProperties.slice(-3).map((property, index) => (
+                        <span key={index} className="property-tag">{property}</span>
+                      ))}
+                    </div>
+                  )}
+                    <div className="total-value">${team.totalValue.toLocaleString()}</div>
+                    <div className="cash">Cash: ${team.cash.toLocaleString()}</div>
+                  </div>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${Math.max(5, Math.min(100, (team.cash || 0) / (team.totalValue || 1) * 100))}%` }}></div>
+                  </div>
                 </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{ width: `${Math.max(5, Math.min(100, (team.cash || 0) / (team.totalValue || 1) * 100))}%` }}></div>
+              ))}
+            </div>
+            <div className="leaderboard-column">
+              {teams.slice(4, 8).map((team) => (
+                <div key={team.name} className={`team-card ${team.rank === 1 ? 'first-place' : ''}`}>
+                  <div className="team-header">
+                    <span className="rank-icon">{getRankIcon(team.rank)}</span>
+                    <span className="team-name">{team.name}</span>
+                  </div>
+                  <div className="team-stats">
+                    <div className="properties-count">{team.properties} properties</div>
+                    {!!(team.recentProperties && team.recentProperties.length) && (
+                      <div className="property-tags">
+                        {team.recentProperties.slice(-3).map((property, index) => (
+                          <span key={index} className="property-tag">{property}</span>
+                        ))}
+                      </div>
+                    )}
+                    <div className="total-value">${team.totalValue.toLocaleString()}</div>
+                    <div className="cash">Cash: ${team.cash.toLocaleString()}</div>
+                  </div>
+                  <div className="progress-bar">
+                    <div className="progress-fill" style={{ width: `${Math.max(5, Math.min(100, (team.cash || 0) / (team.totalValue || 1) * 100))}%` }}></div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Team Statistics */}
-        <div className="stats-section">
-          <div className="section-header">
-            <span className="section-icon">💰</span>
-            <h2>Team Statistics</h2>
-          </div>
-          <div className="stats-grid">
-            {(isLoading && teams.length === 0) && (
-              <div className="stat-card" style={{ gridColumn: '1 / -1', textAlign: 'center' }}>Loading...</div>
-            )}
-            {teams.map((team) => (
-              <div key={team.name} className="stat-card">
-                <div className="stat-header">
-                  <h3 className="stat-team-name">{team.name}</h3>
-                  <div className="position">Pos: {team.position}</div>
-                </div>
-                <div className="stat-details">
-                  <div className="stat-row">
-                    <span className="stat-label">Cash:</span>
-                    <span className="stat-value cash">${team.cash.toLocaleString()}</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-label">Net Worth:</span>
-                    <span className="stat-value net-worth">${team.totalValue.toLocaleString()}</span>
-                  </div>
-                  <div className="stat-row">
-                    <span className="stat-label">Properties:</span>
-                    <span className="stat-value">{team.properties}</span>
-                  </div>
-                </div>
-                <div className="recent-properties">
-                  <div className="properties-label">Recent Properties:</div>
-                  <div className="property-tags">
-                    {(team.recentProperties || []).map((property, index) => (
-                      <span key={index} className="property-tag">{property}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Bottom Right Corner removed */}
