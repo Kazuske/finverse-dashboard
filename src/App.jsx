@@ -131,10 +131,7 @@ function App() {
   };
 
   const getRankIcon = (rank) => {
-    if (rank === 1) return '🏆';
-    if (rank === 2) return '🥈';
-    if (rank === 3) return '🥉';
-    return '↗️';
+    return rank;
   };
 
   return (
@@ -266,6 +263,7 @@ function App() {
       </div>
     </div>
   );
+  
 }
 
 export default App;
