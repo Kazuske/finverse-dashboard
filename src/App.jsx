@@ -1,36 +1,9 @@
-
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import { getTeamLeaderboard, getTeamSummary } from './functions.js';
 
 function App() {
   const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatTime = (date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour12: true, 
-      hour: 'numeric', 
-      minute: '2-digit', 
-      second: '2-digit' 
-    });
-  };
-
-  const formatDate = (date) => {
-    return date.toLocaleDateString('en-US', { 
-      month: '2-digit', 
-      day: '2-digit', 
-      year: 'numeric' 
-    });
-  };
-
   const [teams, setTeams] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorText, setErrorText] = useState('');
@@ -40,13 +13,39 @@ function App() {
   });
   const [gameElapsed, setGameElapsed] = useState(0);
 
+  // Time updater
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (date) =>
+    date.toLocaleTimeString('en-US', {
+      hour12: true,
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+  const formatDate = (date) =>
+    date.toLocaleDateString('en-US', {
+      month: '2-digit',
+      day: '2-digit',
+      year: 'numeric',
+    });
+
+  // Normalize team data
   const normalizeTeam = (row, index) => {
     const teamId = row?.team_id ?? row?.id ?? row?.teamId ?? index + 1;
     const name = row?.team_name ?? row?.name ?? `Team ${teamId}`;
     const cash = Number(row?.cash ?? row?.team_cash ?? row?.total_cash ?? 0) || 0;
-    const totalValue = Number(row?.total ?? row?.total_cash ?? row?.net_worth ?? cash) || cash;
-    const properties = Number(row?.properties ?? row?.property_count ?? row?.num_properties ?? 0) || 0;
-    const position = Number(row?.position ?? row?.pos ?? 0) || (index + 1);
+    const totalValue =
+      Number(row?.total ?? row?.total_cash ?? row?.net_worth ?? cash) || cash;
+    const properties =
+      Number(row?.properties ?? row?.property_count ?? row?.num_properties ?? 0) || 0;
+    const position = Number(row?.position ?? row?.pos ?? 0) || index + 1;
     return {
       teamId,
       name,
@@ -59,6 +58,7 @@ function App() {
     };
   };
 
+  // Fetch leaderboard and team summaries
   const fetchData = async () => {
     try {
       setIsLoading(true);
@@ -66,9 +66,9 @@ function App() {
 
       const { data, error } = await getTeamLeaderboard();
       if (error) throw error;
+
       const normalized = (data ?? []).map((row, idx) => normalizeTeam(row, idx));
 
-      // Attempt to enrich with recent properties for all teams if team ids exist
       const teamsWithProps = await Promise.all(
         normalized.map(async (t) => {
           if (!t.teamId) return t;
@@ -78,17 +78,22 @@ function App() {
             const recentProperties = (summary.owned_properties ?? [])
               .slice(-3)
               .map((p) => p.property_name);
-            return { ...t, properties: summary.owned_properties?.length ?? t.properties, recentProperties };
-          } catch (_) {
+            return {
+              ...t,
+              properties: summary.owned_properties?.length ?? t.properties,
+              recentProperties,
+            };
+          } catch {
             return t;
           }
         })
       );
 
-      const merged = teamsWithProps;
-      setTeams(merged);
+      setTeams(teamsWithProps);
     } catch (err) {
-      setErrorText(typeof err?.message === 'string' ? err.message : 'Failed to load data');
+      setErrorText(
+        typeof err?.message === 'string' ? err.message : 'Failed to load data'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -98,14 +103,15 @@ function App() {
     fetchData();
     const interval = setInterval(fetchData, 5000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Game timer tick
+  // Game timer
   useEffect(() => {
     localStorage.setItem('gameStartTs', String(gameStartTs));
     const tick = setInterval(() => {
-      setGameElapsed(Math.max(0, Math.floor((Date.now() - gameStartTs) / 1000)));
+      setGameElapsed(
+        Math.max(0, Math.floor((Date.now() - gameStartTs) / 1000))
+      );
     }, 1000);
     setGameElapsed(Math.max(0, Math.floor((Date.now() - gameStartTs) / 1000)));
     return () => clearInterval(tick);
@@ -136,12 +142,19 @@ function App() {
       {/* Header */}
       <header className="header">
         <div className="header-left">
-          <img src="/finverse-logo1.png" alt="Finverse Logo" className="finverse-logo-small" />
+          <img
+            src="/finverse-logo1.png"
+            alt="Finverse Logo"
+            className="finverse-logo-small"
+          />
           <div className="title-section">
-            <h1 className="main-title">Finverse <span className="monopoly-board">MONOPOLY</span></h1>
+            <h1 className="main-title">
+              Finverse <span className="monopoly-board">MONOPOLY</span>
+            </h1>
             <p className="subtitle">Live Tournament Dashboard</p>
           </div>
         </div>
+
         <div className="header-right">
           <div className="time-display">
             <div className="time">{formatTime(currentTime)}</div>
@@ -149,7 +162,9 @@ function App() {
             <div className="game-timer">
               <span className="game-timer-label">Game Time:</span>
               <span className="game-timer-value">{formatHMS(gameElapsed)}</span>
-              <button className="timer-reset-btn" onClick={resetGameTimer}>Reset</button>
+              <button className="timer-reset-btn" onClick={resetGameTimer}>
+                Reset
+              </button>
             </div>
           </div>
         </div>
@@ -157,75 +172,98 @@ function App() {
 
       {/* Main Content */}
       <div className="main-content">
-        {/* Leaderboard */}
         <div className="leaderboard-section">
           <div className="section-header">
             <span className="section-icon">🏆</span>
             <h2>Leaderboard</h2>
           </div>
+
           <div className="leaderboard">
             {isLoading && teams.length === 0 && (
-              <div className="team-card" style={{ textAlign: 'center' }}>Loading...</div>
+              <div className="team-card" style={{ textAlign: 'center' }}>
+                Loading...
+              </div>
             )}
             {errorText && (
-              <div className="team-card" style={{ textAlign: 'center', color: '#fca5a5' }}>{errorText}</div>
+              <div
+                className="team-card"
+                style={{ textAlign: 'center', color: '#fca5a5' }}
+              >
+                {errorText}
+              </div>
             )}
-            <div className="leaderboard-column">
-              {teams.slice(0, 4).map((team) => (
-                <div key={team.name} className={`team-card ${team.rank === 1 ? 'first-place' : ''}`}>
-                  <div className="team-header">
-                    <span className="rank-icon">{getRankIcon(team.rank)}</span>
-                    <span className="team-name">{team.name}</span>
-                  </div>
-                <div className="team-stats">
-                  <div className="properties-count">{team.properties} properties</div>
-                  {!!(team.recentProperties && team.recentProperties.length) && (
-                    <div className="property-tags">
-                      {team.recentProperties.slice(-3).map((property, index) => (
-                        <span key={index} className="property-tag">{property}</span>
-                      ))}
-                    </div>
-                  )}
-                    <div className="total-value">${team.totalValue.toLocaleString()}</div>
-                    <div className="cash">Cash: ${team.cash.toLocaleString()}</div>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${Math.max(5, Math.min(100, (team.cash || 0) / (team.totalValue || 1) * 100))}%` }}></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="leaderboard-column">
-              {teams.slice(4, 8).map((team) => (
-                <div key={team.name} className={`team-card ${team.rank === 1 ? 'first-place' : ''}`}>
-                  <div className="team-header">
-                    <span className="rank-icon">{getRankIcon(team.rank)}</span>
-                    <span className="team-name">{team.name}</span>
-                  </div>
-                  <div className="team-stats">
-                    <div className="properties-count">{team.properties} properties</div>
-                    {!!(team.recentProperties && team.recentProperties.length) && (
-                      <div className="property-tags">
-                        {team.recentProperties.slice(-3).map((property, index) => (
-                          <span key={index} className="property-tag">{property}</span>
-                        ))}
+
+            {/* 🔹 Dynamic 3-column distribution */}
+            {Array.from({ length: 3 }).map((_, colIndex) => (
+              <div className="leaderboard-column" key={colIndex}>
+                {teams
+                  .slice(
+                    colIndex * Math.ceil(teams.length / 3),
+                    (colIndex + 1) * Math.ceil(teams.length / 3)
+                  )
+                  .map((team) => (
+                    <div
+                      key={team.name}
+                      className={`team-card ${
+                        team.rank === 1 ? 'first-place' : ''
+                      }`}
+                    >
+                      <div className="team-header">
+                        <span className="rank-icon">
+                          {getRankIcon(team.rank)}
+                        </span>
+                        <span className="team-name">{team.name}</span>
                       </div>
-                    )}
-                    <div className="total-value">${team.totalValue.toLocaleString()}</div>
-                    <div className="cash">Cash: ${team.cash.toLocaleString()}</div>
-                  </div>
-                  <div className="progress-bar">
-                    <div className="progress-fill" style={{ width: `${Math.max(5, Math.min(100, (team.cash || 0) / (team.totalValue || 1) * 100))}%` }}></div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                      <div className="team-stats">
+                        <div className="properties-count">
+                          {team.properties} properties
+                        </div>
+                        {!!(
+                          team.recentProperties && team.recentProperties.length
+                        ) && (
+                          <div className="property-tags">
+                            {team.recentProperties.slice(-3).map(
+                              (property, index) => (
+                                <span
+                                  key={index}
+                                  className="property-tag"
+                                >
+                                  {property}
+                                </span>
+                              )
+                            )}
+                          </div>
+                        )}
+                        <div className="total-value">
+                          ${team.totalValue.toLocaleString()}
+                        </div>
+                        <div className="cash">
+                          Cash: ${team.cash.toLocaleString()}
+                        </div>
+                      </div>
+                      <div className="progress-bar">
+                        <div
+                          className="progress-fill"
+                          style={{
+                            width: `${Math.max(
+                              5,
+                              Math.min(
+                                100,
+                                (team.cash || 0) /
+                                  (team.totalValue || 1) *
+                                  100
+                              )
+                            )}%`,
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ))}
           </div>
         </div>
-
       </div>
-
-      {/* Bottom Right Corner removed */}
     </div>
   );
 }
